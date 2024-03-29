@@ -114,7 +114,7 @@ nrow(BFS_all.UT.2)
 check = BFS_all.UT.2 %>%
   arrange(observation.date) %>%
   mutate(time = observation.date) %>% # Use mutate to create a new column named time, which takes the values from observation.date.
-  mutate(SO = case_when( # Use mutate to create a new column named SO(Season-Occasion), which identifies the corresponding season and year interval based on the values in time.
+  mutate(SO = case_when( # Use mutate to create a new column named SO(Sampling Occasion), which identifies the corresponding season and year interval based on the values in time.
     time>=as.Date("1994/12/1")&time<=as.Date("1995/2/28")~"1994W",	time>=as.Date("1995/6/1")&time<=as.Date("1995/8/31")~"1995S",
     time>=as.Date("1995/12/1")&time<=as.Date("1996/2/29")~"1995W",	time>=as.Date("1996/6/1")&time<=as.Date("1996/8/31")~"1996S",
     time>=as.Date("1996/12/1")&time<=as.Date("1997/2/28")~"1996W",	time>=as.Date("1997/6/1")&time<=as.Date("1997/8/31")~"1997S",
