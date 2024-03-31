@@ -157,16 +157,16 @@ test3sr_S <- test3sr(cr[region=="S",], freq=rep(1,dim(cr[region=="S",])[1]))
 test3sr.comb <- rbind(test3sr_T$test3sr, test3sr_J$test3sr, test3sr_S$test3sr)
 rownames(test3sr.comb) = c('T','J','S')
 test3sr.sum <- colSums(test3sr.comb[,1:2])
-cbind(X2=test3sr.sum[1], df=test3sr.sum[2], chat=test3sr.sum[1]/test3sr.sum[2]) # c-hat=0.774
+cbind(X2=test3sr.sum[1], df=test3sr.sum[2], chat=test3sr.sum[1]/test3sr.sum[2]) # c-hat=0.829
 
-test3sm_T <- test3sm(cr[region=="T",], freq=rep(1,dim(cr[region=="T",])[1]))
+test3sm_T <- test3sm(cr[region=="T",], freq=rep(1,dim(cr[region=="T",])[1])) # p<0.05
 test3sm_J <- test3sm(cr[region=="J",], freq=rep(1,dim(cr[region=="J",])[1]))
-test3sm_S <- test3sm(cr[region=="S",], freq=rep(1,dim(cr[region=="S",])[1]))
+test3sm_S <- test3sm(cr[region=="S",], freq=rep(1,dim(cr[region=="S",])[1])) # p<0.05
 
 test3sm.comb <- rbind(test3sm_T$test3sm, test3sm_J$test3sm, test3sm_S$test3sm)
 rownames(test3sm.comb) = c('T','J','S')
 test3sm.sum <- colSums(test3sm.comb[,1:2])
-cbind(X2=test3sm.sum[1], df=test3sm.sum[2], chat=test3sm.sum[1]/test3sm.sum[2]) # c-hat=2.47473
+cbind(X2=test3sm.sum[1], df=test3sm.sum[2], chat=test3sm.sum[1]/test3sm.sum[2]) # c-hat=2.431595
 
 test2ct_T <- test2ct(cr[region=="T",], freq=rep(1,dim(cr[region=="T",])[1])) 
 test2ct_J <- test2ct(cr[region=="J",], freq=rep(1,dim(cr[region=="J",])[1])) 
@@ -175,21 +175,21 @@ test2ct_S <- test2ct(cr[region=="S",], freq=rep(1,dim(cr[region=="S",])[1]))
 test2ct.comb <- rbind(test2ct_T$test2ct, test2ct_J$test2ct, test2ct_S$test2ct)
 rownames(test2ct.comb) = c('T','J','S')
 test2ct.sum <- colSums(test2ct.comb[,1:2])
-cbind(X2=test2ct.sum[1], df=test2ct.sum[2], chat=test2ct.sum[1]/test2ct.sum[2]) # chat=0.9420854
+cbind(X2=test2ct.sum[1], df=test2ct.sum[2], chat=test2ct.sum[1]/test2ct.sum[2]) # chat=0.947378
 
-test2cl_T <- test2cl(cr[region=="T",], freq=rep(1,dim(cr[region=="T",])[1]))
+test2cl_T <- test2cl(cr[region=="T",], freq=rep(1,dim(cr[region=="T",])[1])) # p<0.05
 test2cl_J <- test2cl(cr[region=="J",], freq=rep(1,dim(cr[region=="J",])[1]))
 test2cl_S <- test2cl(cr[region=="S",], freq=rep(1,dim(cr[region=="S",])[1]))
 
 test2cl.comb <- rbind(test2cl_T$test2cl, test2cl_J$test2cl, test2cl_S$test2cl)
 rownames(test2cl.comb) = c('T','J','S')
 test2cl.sum <- colSums(test2cl.comb[,1:2])
-cbind(X2=test2cl.sum[1], df=test2cl.sum[2], chat=test2cl.sum[1]/test2cl.sum[2]) # chat=2.222333
+cbind(X2=test2cl.sum[1], df=test2cl.sum[2], chat=test2cl.sum[1]/test2cl.sum[2]) # chat=2.229238
 
 # all tests combined:
 tests.combined <- rbind(test3sr.sum, test3sm.sum, test2ct.sum, test2cl.sum)
 tests.combined.sum = colSums(tests.combined)
-cbind(X2=tests.combined.sum[1], df=tests.combined.sum[2], chat=tests.combined.sum[1]/tests.combined.sum[2]) # c-hat=1.533977
+cbind(X2=tests.combined.sum[1], df=tests.combined.sum[2], chat=tests.combined.sum[1]/tests.combined.sum[2]) # c-hat=1.540507
 
 
 chat=tests.combined.sum[1]/tests.combined.sum[2] # can be used in model selection and variance calculations
@@ -795,6 +795,16 @@ write.csv(all.avg.p[["estimates"]], "all.avg.p.Feb2024.csv", row.names = FALSE)
 
 ## [Optional] Step 3: Test specific models #####
 
+# Phi(~season)p(~ageclass02 * season + region * season * Year)
+Phi.s.p.sa_sry <- mark(data=BFS.process, ddl=BFS.ddl, model.parameters=list(Phi=list(formula=~season), p=list(formula=~season*ageclass02 + season*region*Year)), 
+                       invisible=F, delete=T, adjust=T)
+
+Phi.s.p.sa_sry$results$real
+Phi.s.p.sa_sry$results$beta
+write.csv(Phi.s.p.sa_sry$results$real, "Phi.s.p.sa_sry.real.csv")
+write.csv(Phi.s.p.sa_sry$results$beta, "Phi.s.p.sa_sry.beta.csv")
+
+# # Phi(~season + ageclass04 + region)p(~ageclass02 * season + region * season * Year)
 Phi.s_a_r.p.sa_sry <- mark(data=BFS.process, ddl=BFS.ddl, model.parameters=list(Phi=list(formula=~season+ageclass04+region), p=list(formula=~season*ageclass02 + season*region*Year)), 
                 invisible=F, delete=T, adjust=T)
 
