@@ -141,15 +141,6 @@ BFS.ddl$p$O <- 1 - BFS.ddl$p$TW
 
 ### GoF test ####
 ## Custom GoF Function
-# A custom function to perform GoF tests on subsets of data, assuming such a function exists
-performGoFTest <- function(data_subset) {
-  # Placeholder for a GoF test function
-  # result <- someGoFTestFunction(data_subset)
-  # return(result)
-}
-
-
-
 # Runs RELEASE for goodness of fit test
 release.gof(BFS.process) 
 
@@ -158,12 +149,11 @@ cr <- matrix(ncol=nchar(BFS$ch[1]), nrow=dim(BFS)[1])
 for (i in 1:dim(BFS)[1]) cr[i,] <- as.numeric(strsplit(BFS$ch[i], "")[[1]])
 region = BFS$region
 
+# conduct TEST 3.SR separately to 3 wintering regions (there's no 'K' birds anymore)
 test3sr_T <- test3sr(cr[region=="T",], freq=rep(1,dim(cr[region=="T",])[1]))
 test3sr_J <- test3sr(cr[region=="J",], freq=rep(1,dim(cr[region=="J",])[1]))
 test3sr_S <- test3sr(cr[region=="S",], freq=rep(1,dim(cr[region=="S",])[1]))
-# test3sr_K <- test3sr(cr[region=="K",], freq=rep(1,dim(cr[region=="K",])[1]))
 
-#test3sr.comb <- rbind(test3sr_T$test3sr, test3sr_J$test3sr, test3sr_S$test3sr, test3sr_K$test3sr)
 test3sr.comb <- rbind(test3sr_T$test3sr, test3sr_J$test3sr, test3sr_S$test3sr)
 rownames(test3sr.comb) = c('T','J','S')
 test3sr.sum <- colSums(test3sr.comb[,1:2])
@@ -172,9 +162,7 @@ cbind(X2=test3sr.sum[1], df=test3sr.sum[2], chat=test3sr.sum[1]/test3sr.sum[2]) 
 test3sm_T <- test3sm(cr[region=="T",], freq=rep(1,dim(cr[region=="T",])[1]))
 test3sm_J <- test3sm(cr[region=="J",], freq=rep(1,dim(cr[region=="J",])[1]))
 test3sm_S <- test3sm(cr[region=="S",], freq=rep(1,dim(cr[region=="S",])[1]))
-#test3sm_K <- test3sm(cr[region=="K",], freq=rep(1,dim(cr[region=="K",])[1]))
 
-#test3sm.comb <- rbind(test3sm_T$test3sm, test3sm_J$test3sm, test3sm_S$test3sm, test3sm_K$test3sm)
 test3sm.comb <- rbind(test3sm_T$test3sm, test3sm_J$test3sm, test3sm_S$test3sm)
 rownames(test3sm.comb) = c('T','J','S')
 test3sm.sum <- colSums(test3sm.comb[,1:2])
@@ -183,9 +171,7 @@ cbind(X2=test3sm.sum[1], df=test3sm.sum[2], chat=test3sm.sum[1]/test3sm.sum[2]) 
 test2ct_T <- test2ct(cr[region=="T",], freq=rep(1,dim(cr[region=="T",])[1])) 
 test2ct_J <- test2ct(cr[region=="J",], freq=rep(1,dim(cr[region=="J",])[1])) 
 test2ct_S <- test2ct(cr[region=="S",], freq=rep(1,dim(cr[region=="S",])[1])) 
-#test2ct_K <- test2ct(cr[region=="K",], freq=rep(1,dim(cr[region=="K",])[1])) 
 
-#test2ct.comb <- rbind(test2ct_T$test2ct, test2ct_J$test2ct, test2ct_S$test2ct, test2ct_K$test2ct)
 test2ct.comb <- rbind(test2ct_T$test2ct, test2ct_J$test2ct, test2ct_S$test2ct)
 rownames(test2ct.comb) = c('T','J','S')
 test2ct.sum <- colSums(test2ct.comb[,1:2])
@@ -194,7 +180,6 @@ cbind(X2=test2ct.sum[1], df=test2ct.sum[2], chat=test2ct.sum[1]/test2ct.sum[2]) 
 test2cl_T <- test2cl(cr[region=="T",], freq=rep(1,dim(cr[region=="T",])[1]))
 test2cl_J <- test2cl(cr[region=="J",], freq=rep(1,dim(cr[region=="J",])[1]))
 test2cl_S <- test2cl(cr[region=="S",], freq=rep(1,dim(cr[region=="S",])[1]))
-#test2cl_K <- test2cl(cr[region=="K",], freq=rep(1,dim(cr[region=="K",])[1]))
 
 test2cl.comb <- rbind(test2cl_T$test2cl, test2cl_J$test2cl, test2cl_S$test2cl)
 rownames(test2cl.comb) = c('T','J','S')
@@ -687,22 +672,22 @@ for (i in seq(1, 6807, 83)) {
 ### Model selection ####
 
 ## [DO NOT RUN] Plan A: Merging all at once can cause the computer to crash ####
-#model.results.all = merge.mark(
-#  model.results.1_83, model.results.84_166, model.results.167_249, model.results.250_332, model.results.333_415, model.results.416_498, 
-#  model.results.499_581, model.results.582_664, model.results.665_747, model.results.748_830, model.results.831_913, model.results.914_996, 
-#  model.results.997_1079, model.results.1080_1162, model.results.1163_1245, model.results.1246_1328, model.results.1329_1411, model.results.1412_1494, 
-#  model.results.1495_1577, model.results.1578_1660, model.results.1661_1743, model.results.1744_1826, model.results.1827_1909, model.results.1910_1992, 
-#  model.results.1993_2075, model.results.2076_2158, model.results.2159_2241, model.results.2242_2324, model.results.2325_2407, model.results.2408_2490, 
-#  model.results.2491_2573, model.results.2574_2656, model.results.2657_2739, model.results.2740_2822, model.results.2823_2905, model.results.2906_2988, 
-#  model.results.2989_3071, model.results.3072_3154, model.results.3155_3237, model.results.3238_3320, model.results.3321_3403, model.results.3404_3486, 
-#  model.results.3487_3569, model.results.3570_3652, model.results.3653_3735, model.results.3736_3818, model.results.3819_3901, model.results.3902_3984, 
-#  model.results.3985_4067, model.results.4068_4150, model.results.4151_4233, model.results.4234_4316, model.results.4317_4399, model.results.4400_4482, 
-#  model.results.4483_4565, model.results.4566_4648, model.results.4649_4731, model.results.4732_4814, model.results.4815_4897, model.results.4898_4980, 
-#  model.results.4981_5063, model.results.5064_5146, model.results.5147_5229, model.results.5230_5312, model.results.5313_5395, model.results.5396_5478, 
-#  model.results.5479_5561, model.results.5562_5644, model.results.5645_5727, model.results.5728_5810, model.results.5811_5893, model.results.5894_5976, 
-#  model.results.5977_6059, model.results.6060_6142, model.results.6143_6225, model.results.6226_6308, model.results.6309_6391, model.results.6392_6474, 
+# model.results.all = merge.mark(
+#  model.results.1_83, model.results.84_166, model.results.167_249, model.results.250_332, model.results.333_415, model.results.416_498,
+#  model.results.499_581, model.results.582_664, model.results.665_747, model.results.748_830, model.results.831_913, model.results.914_996,
+#  model.results.997_1079, model.results.1080_1162, model.results.1163_1245, model.results.1246_1328, model.results.1329_1411, model.results.1412_1494,
+#  model.results.1495_1577, model.results.1578_1660, model.results.1661_1743, model.results.1744_1826, model.results.1827_1909, model.results.1910_1992,
+#  model.results.1993_2075, model.results.2076_2158, model.results.2159_2241, model.results.2242_2324, model.results.2325_2407, model.results.2408_2490,
+#  model.results.2491_2573, model.results.2574_2656, model.results.2657_2739, model.results.2740_2822, model.results.2823_2905, model.results.2906_2988,
+#  model.results.2989_3071, model.results.3072_3154, model.results.3155_3237, model.results.3238_3320, model.results.3321_3403, model.results.3404_3486,
+#  model.results.3487_3569, model.results.3570_3652, model.results.3653_3735, model.results.3736_3818, model.results.3819_3901, model.results.3902_3984,
+#  model.results.3985_4067, model.results.4068_4150, model.results.4151_4233, model.results.4234_4316, model.results.4317_4399, model.results.4400_4482,
+#  model.results.4483_4565, model.results.4566_4648, model.results.4649_4731, model.results.4732_4814, model.results.4815_4897, model.results.4898_4980,
+#  model.results.4981_5063, model.results.5064_5146, model.results.5147_5229, model.results.5230_5312, model.results.5313_5395, model.results.5396_5478,
+#  model.results.5479_5561, model.results.5562_5644, model.results.5645_5727, model.results.5728_5810, model.results.5811_5893, model.results.5894_5976,
+#  model.results.5977_6059, model.results.6060_6142, model.results.6143_6225, model.results.6226_6308, model.results.6309_6391, model.results.6392_6474,
 #  model.results.6475_6557, model.results.6558_6640, model.results.6641_6723, model.results.6724_6806, model.results.6807_6889
-#)
+# )
 
 
 ## Plan B: Merge model lists gradually ####
