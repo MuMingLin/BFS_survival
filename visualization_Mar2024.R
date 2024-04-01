@@ -1,25 +1,128 @@
-# library
-library(parallel) # for parallel processing
-library(msm) # for Delta method
-library(MuMIn) # dredge
-library(ggplot2)
-library(tidyr)
+### Library ####
 library(dplyr)
+library(tidyr)
+library(stringr)
+library(ggplot2)
+library(scales)
+
+### Clean up input files ####
+## read file of real estimates of the top model Phi.s.p.sa_sry
+Phi.s.p.sa_sry.df = read.csv("Phi.s.p.sa_sry.real.csv")
+
+Phi.s.p.sa_sry.df = Phi.s.p.sa_sry.df[,1:5]
+
+## split X column into five
+Phi.s.p.sa_sry.df[c('par', 'group', 'cohort', 'age', 'time')] <- stringr::str_split_fixed(Phi.s.p.sa_sry.df$X, ' ', 5)
+
+## extract information needed
+real.df <- Phi.s.p.sa_sry.df %>%
+  # Extract year from time and convert to numeric for rounding
+  mutate(Year = as.numeric(str_extract(time, "\\d+")),
+         # Determine season based on whether time has ".5"
+         Season = ifelse(str_detect(time, "\\.5"), "Winter", "Summer"),
+         # Adjust Season based on 'par' value
+         Season = case_when(
+           par == "Phi" & Season == "Summer" ~ "Summer–Winter",
+           par == "Phi" & Season == "Winter" ~ "Winter–Summer",
+           TRUE ~ Season
+         ),
+         # Determine Age category based on 'age' value
+         Age = case_when(
+           age %in% c("a1", "a1.5") ~ "0–2yo",
+           TRUE ~ "2yo+"
+         ),
+         # Determine Region based on 'group' value
+         Region = case_when(
+           str_detect(group, "J") ~ "Japan",
+           str_detect(group, "S") ~ "South China",
+           str_detect(group, "T") ~ "Taiwan",
+           TRUE ~ NA_character_
+         ))
+
+# Check the structure of the modified dataframe
+str(real.df)
 
 
-# read file of read estimates
-Phi.s_a04_r.p.sa02_sry.df = read.csv("Phi.s_a04_r.p.sa02_sry.real.csv")
+## Subsetting
 
-Phi.s_a04_r.p.sa02_sry.df = Phi.s_a04_r.p.sa02_sry.df[,1:5]
+# Phi
+Phi_1.df = real.df[real.df$par == "Phi",]
 
-
-# Split X column into five
-Phi.s_a04_r.p.sa02_sry.df[c('par', 'group', 'cohort', 'age', 'time')] <- stringr::str_split_fixed(Phi.s_a04_r.p.sa02_sry.df$X, ' ', 5)
-
+# p
+p_1.df = real.df[real.df$par == "p",]
 
 
 
-#######################
+
+# p_1.real.edit = read.csv("p_1.real.edit.csv", colClasses = c("character", "numeric", "numeric", "numeric", "numeric", "factor", "factor", "factor", "factor", "factor", "character", "factor", "factor", "numeric", "factor"))
+# Phi_1.real.edit = read.csv("Phi_1.real.edit.csv", colClasses = c("character", "numeric", "numeric", "numeric", "numeric", "character", "factor"))
+
+
+### Plotting ####
+
+## Phi
+
+Phi_1 <- ggplot(Phi_1.df, aes(x = Season, y = estimate)) + 
+  geom_errorbar(aes(ymin = lcl, ymax = ucl), size = 1, width = 0) +  # Ensure there's a plus here
+  geom_point(size = 4, color = "#28AAA0") +  # Adjust the size to your preference
+  theme_bw() +
+  labs(x = "Season", 
+       y = "Survival Probability", 
+       title = "") +
+  theme(
+    panel.grid = element_blank(),  # Remove all gridlines
+    strip.background = element_rect(colour = "black", fill = NA),  # Black lines for facet wrap
+    text = element_text(size = 12),  # Base text size for the entire plot
+    axis.title = element_text(size = 14),  # Increase axis title text size
+    axis.text = element_text(size = 11),  # Increase axis text size
+  ) +
+  scale_y_continuous(labels = scales::percent_format(), limits = c(0, 1))
+  
+# save as svg
+ggsave("Phi_1.svg", plot = Phi_1, width = 20, height = 15, units = "cm")
+
+
+## p
+
+p_1 <- ggplot(p_1.df, aes(x = Year, y = estimate, color = Region, group = interaction(Age, Season, Region))) +
+  geom_ribbon(aes(ymin = lcl, ymax = ucl, fill = Region), alpha = 0.1, color = NA, show.legend = FALSE) +  # Add shaded area for confidence interval
+  geom_line() +
+  geom_point(aes(shape = Age), size = 1.5) +  # Adjust the size to your preference
+  scale_shape_manual(values = c("0–2yo" = 21, "2yo+" = 16)) +  # Set shapes for hollow (21) and solid (16) points
+  scale_color_manual(values = c("Japan" = "#942492", "Taiwan" = "#28AAA0", "South China" = "#FAAE40")) +  # Custom colors for lines and points
+  scale_fill_manual(values = c("Japan" = "#942492", "Taiwan" = "#28AAA0", "South China" = "#FAAE40")) +  # Custom colors for ribbon fills
+  facet_wrap(~Season, ncol = 1, scales = "free_y", strip.position = "top") +  # Separated facets for each season
+  theme_bw() +
+  theme(
+    panel.grid = element_blank(),  # Remove all gridlines
+    strip.background = element_rect(colour = "black", fill = NA),  # Black lines for facet wrap
+    panel.spacing = unit(0.5, "lines"),  # Increase space between facets
+    legend.position = c(0.5, 0.92),
+    legend.direction = "horizontal",
+    legend.box = "horizontal", # This ensures the legend keys are in a single row
+    legend.box.spacing = unit(1.5, "cm"),  # Adjust the space between legends
+    legend.background = element_blank(),
+    text = element_text(size = 12),  # Base text size for the entire plot
+    axis.title = element_text(size = 14),  # Increase axis title text size
+    axis.text = element_text(size = 11),  # Increase axis text size
+    legend.title = element_text(size = 12),  # Increase legend title text size
+    legend.text = element_text(size = 11, color = "grey20"),
+    strip.text = element_text(size = 14), # Increase legend text size
+  ) +
+  labs(x = "Year", 
+       y = "Resighting Probability", 
+       color = "Region",
+       title = "") +
+  scale_y_continuous(labels = percent_format(), limits = c(0, 1)) +
+  scale_x_continuous(breaks = seq(2006, 2023, by = 2))  # Add more x-axis labels
+
+
+# Save the plot
+ggsave("p_1.svg", plot = p_1, width = 20, height = 15, units = "cm")
+
+
+
+### Model averaging estimates ####
 # read file of read estimates
 all.avg = read.csv("all.avg.0201.csv")
 
@@ -131,151 +234,3 @@ ggplot(data = Phi.plotting.2[!Phi.plotting.2$region=="K" & Phi.plotting.2$agegro
 
 
 
-
-
-
-
-
-
-
-############
-### Plotting ####
-
-
-
-
-
-
-# real estimates of the current best model
-real.estimates = read.csv("Phi.WSxrxa04_TWxyxs.p.Wxr_a04.real.csv")
-
-# [Phi] Prepare data
-# Create new columns for the extracted information
-real.estimates$parameter = str_extract(real.estimates[,1], "Phi|p")  # Add other parameters as needed
-real.estimates$region = str_extract(real.estimates[,1], "J|K|S|T")
-real.estimates$year = as.integer(str_extract(real.estimates[,1], "(?<=t)\\d+(\\.\\d+)?"))
-real.estimates$age.class = ifelse(as.numeric(str_extract(real.estimates[,1], "(?<=a)(\\d+\\.?\\d*)")) < 4, "young (0–4)", "old (4+)")
-real.estimates$season = ifelse(str_detect(real.estimates[,1], "t\\d+\\.5"), "W-S", "S-W")
-
-# change p season
-real.estimates$season[real.estimates$parameter == "p" & real.estimates$season == "W-S"] = "W"
-real.estimates$season[real.estimates$parameter == "p" & real.estimates$season == "S-W"] = "S"
-
-
-# create Phi ~ region * age dataframe
-Phi.rxa.plotting = real.estimates[real.estimates$parameter=="Phi",] # some parameters are estimated 1 and I don't know how to explain them
-
-# get geometric means of TW seasonal survivals
-
-Phi.rxa.plotting.2 = 
-  Phi.rxa.plotting %>%
-  group_by(region, season, age.class) %>%
-  mutate(
-    gm_estimate = exp(mean(log(estimate))),  # Calculate geometric mean
-    gm_se = exp(mean(log(replace(se, se ==0, 0.00001)))),       # How to calculate SE ???
-    gm_ucl = exp(mean(log(replace(ucl, ucl ==0, 0.00001)))),       # How to calculate???
-    gm_lcl = exp(mean(log(replace(lcl, lcl ==0, 0.00001))))       # How to calculate???
-  ) %>%
-  distinct(region, season, age.class, .keep_all = TRUE)
-
-# create Phi ~ TW:y*s dataframe
-Phi.TW.plotting = real.estimates[real.estimates$parameter=="Phi"&real.estimates$region=="T",] 
-
-Phi.TW.plotting2 = Phi.TW.plotting
-Phi.TW.plotting2$sxa = paste(Phi.TW.plotting$season, Phi.TW.plotting$age.class)
-
-# [p]
-# create p ~ region + age dataframe
-p.plotting = real.estimates[real.estimates$parameter=="p",] # some parameters are estimated 1 and I don't know how to explain them
-
-
-# [Phi] ~W-S:r*a
-# replace NaNs as 0 otherwise they can't be plotted
-Phi.rxa.plotting.3 = Phi.rxa.plotting.2 
-Phi.rxa.plotting.3$gm_lcl[is.na(Phi.rxa.plotting.3$gm_lcl)] = 0
-
-# for plotting lcl & ucl
-Phi.rxa.plotting.3$region_low =  as.numeric(as.factor(Phi.rxa.plotting.3$region)) - 0.1 
-Phi.rxa.plotting.3$region_high =  as.numeric(as.factor(Phi.rxa.plotting.3$region)) + 0.1 
-
-# changing label & legend title names
-Phi.rxa.plotting.3$region[Phi.rxa.plotting.3$region=="J"] = "Japan"
-Phi.rxa.plotting.3$region[Phi.rxa.plotting.3$region=="K"] = "South Korea"
-Phi.rxa.plotting.3$region[Phi.rxa.plotting.3$region=="S"] = "Southern China"
-Phi.rxa.plotting.3$region[Phi.rxa.plotting.3$region=="T"] = "Taiwan"
-
-names(Phi.rxa.plotting.3)[names(Phi.rxa.plotting.3) == 'age.class'] <- 'Age classes'
-
-# ggpplot2
-RXA = 
-  ggplot(data = Phi.rxa.plotting.3[Phi.rxa.plotting.3$season=="W-S",], 
-         aes(x = region, y = gm_estimate, color=`Age classes`))+
-  geom_pointrange(aes(ymin = gm_estimate-gm_se, ymax = gm_estimate+gm_se)) + 
-  scale_color_manual(values = c("young (0–4)" = "deepskyblue2", "old (4+)" = "deepskyblue4")) +
-  geom_segment(aes(y = gm_lcl, yend = gm_lcl, x = region_low, xend = region_high), linetype="solid", alpha=0.2, linewidth = 1) + 
-  geom_segment(aes(y = gm_ucl, yend = gm_ucl, x = region_low, xend = region_high), linetype="solid", alpha=0.2, linewidth = 1) +
-  geom_pointrange(aes(ymin = gm_estimate-gm_se, ymax = gm_estimate+gm_se),position = position_dodge(width = 0)) + 
-  labs(title="BFS Winter to Summer Survival in Different Age Classes",x="Wintering Regions", y = "Survival Estimates (Φ)")+
-  theme_classic()+
-  theme(
-    legend.position=c(0.9, 0.2),
-    plot.title = element_text(hjust = 0.5, size = 16),
-  ) 
-
-
-# [Phi] ~TW:y*s
-# changing label names
-Phi.TW.plotting2$season[Phi.TW.plotting2$season=="W-S"] = "Winter to Summer"
-Phi.TW.plotting2$season[Phi.TW.plotting2$season=="S-W"] = "Summer to Winter"
-
-# ggpplot2
-TW = 
-  ggplot(data = Phi.TW.plotting2, 
-         aes(x = year, y = estimate, color=sxa))+
-  geom_ribbon(aes(ymin=lcl, ymax=ucl, fill = sxa), alpha=0.1, colour = NA) +
-  scale_fill_manual(values = c("salmon3","lightsalmon", "deepskyblue4","deepskyblue2"))+
-  geom_pointrange(aes(ymin = estimate-se, ymax = estimate+se), alpha=0.8) + 
-  scale_colour_manual(values = c("salmon3","lightsalmon", "deepskyblue4","deepskyblue2"))+
-  geom_line(linetype = "solid") +
-  labs(title="Seasonal Survival of BFS Wintering in Taiwan",x="Year", y = "Survival Estimates (Φ)")+
-  scale_y_continuous(breaks = seq(0, 1, by = 0.2)) +
-  scale_x_continuous(breaks = seq(2006, 2020, by = 2)) +
-  facet_grid(~ season, scales = "free", space = "free")+
-  theme_classic() +
-  theme(
-    plot.title = element_text(hjust = 0.5, size = 20),
-    legend.title=element_blank(),
-    legend.position=c(0.9, 0.2),
-    axis.text.x = element_text(angle = 30, hjust = 1)
-  ) 
-
-
-
-# [p] ~W:r+a
-# for plotting lcl & ucl
-p.plotting$region_low =  as.numeric(as.factor(p.plotting$region)) - 0.1 
-p.plotting$region_high =  as.numeric(as.factor(p.plotting$region)) + 0.1 
-
-# changing label & legend title names
-p.plotting$region[p.plotting$region=="J"] = "Japan"
-p.plotting$region[p.plotting$region=="K"] = "South Korea"
-p.plotting$region[p.plotting$region=="S"] = "Southern China"
-p.plotting$region[p.plotting$region=="T"] = "Taiwan"
-
-names(p.plotting)[names(p.plotting) == 'age.class'] <- 'Age classes'
-
-# ggplot2
-Detection =   
-  ggplot(data = p.plotting[p.plotting$season=="W",], 
-         aes(x = region, y = estimate, color=`Age classes`))+
-  geom_pointrange(aes(ymin = estimate-se, ymax = estimate+se), alpha=0.8)+ 
-  scale_color_manual(values = c("young (0–4)" = "deepskyblue2", "old (4+)" = "deepskyblue4")) +
-  geom_segment(aes(y = lcl, yend = lcl, x = region_low, xend = region_high), linetype="solid", alpha=0.2, linewidth = 1) + 
-  geom_segment(aes(y = ucl, yend = ucl, x = region_low, xend = region_high), linetype="solid", alpha=0.2, linewidth = 1) +
-  geom_pointrange(aes(ymin = estimate-se, ymax = estimate+se), alpha=0.8)+ 
-  labs(title="BFS Detection Probabilities in Winter",x="Wintering Regions", y = "Detection Probabilities (p)")+
-  theme_classic()+
-  theme(
-    legend.position=c(0.9, 0.2),
-    plot.title = element_text(hjust = 0.5, size = 16),
-  )  
