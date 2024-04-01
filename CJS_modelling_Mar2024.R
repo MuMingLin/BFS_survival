@@ -107,37 +107,37 @@ BFS.ddl=add.design.data(BFS.process, BFS.ddl,
 BFS.ddl=add.design.data(BFS.process, BFS.ddl,
                         parameter="p", type="age", bins=c(0,0.9,1.9,2.9,3.9,30),name="ageclass01234",replace=TRUE)
 
-## ddl - dummy columns [run if needed]
-
-# add dummy columns of seasons
-BFS.ddl$Phi$S_W <- 0
-BFS.ddl$Phi$S_W[BFS.ddl$Phi$season=='S-W'] <- 1 
-BFS.ddl$Phi$W_S <- 1 - BFS.ddl$Phi$S_W
-
-BFS.ddl$p$S <- 0
-BFS.ddl$p$S[BFS.ddl$p$season=='S'] <- 1 
-BFS.ddl$p$W <- 1 - BFS.ddl$p$S
-
-
-# add dummy column "TW" & "O"(others)
-BFS.ddl$Phi$TW <- 0
-BFS.ddl$Phi$TW[BFS.ddl$Phi$region=='T'] <- 1
-BFS.ddl$Phi$O <- 1 - BFS.ddl$Phi$TW
-
-
-BFS.ddl$p$TW <- 0
-BFS.ddl$p$TW[BFS.ddl$p$region=='T'] <- 1
-BFS.ddl$p$O <- 1 - BFS.ddl$p$TW
-
-# add dummy column of age classes
-BFS.ddl$Phi$Y04 <- 0
-BFS.ddl$Phi$Y04[BFS.ddl$Phi$ageclass04=='[0,3.9]'] <- 1
-BFS.ddl$Phi$A04 <- 1 - BFS.ddl$Phi$Y04
-
-
-BFS.ddl$p$TW <- 0
-BFS.ddl$p$TW[BFS.ddl$p$region=='T'] <- 1
-BFS.ddl$p$O <- 1 - BFS.ddl$p$TW
+# ## ddl - dummy columns [run if needed]
+# 
+# # add dummy columns of seasons
+# BFS.ddl$Phi$S_W <- 0
+# BFS.ddl$Phi$S_W[BFS.ddl$Phi$season=='S-W'] <- 1 
+# BFS.ddl$Phi$W_S <- 1 - BFS.ddl$Phi$S_W
+# 
+# BFS.ddl$p$S <- 0
+# BFS.ddl$p$S[BFS.ddl$p$season=='S'] <- 1 
+# BFS.ddl$p$W <- 1 - BFS.ddl$p$S
+# 
+# 
+# # add dummy column "TW" & "O"(others)
+# BFS.ddl$Phi$TW <- 0
+# BFS.ddl$Phi$TW[BFS.ddl$Phi$region=='T'] <- 1
+# BFS.ddl$Phi$O <- 1 - BFS.ddl$Phi$TW
+# 
+# 
+# BFS.ddl$p$TW <- 0
+# BFS.ddl$p$TW[BFS.ddl$p$region=='T'] <- 1
+# BFS.ddl$p$O <- 1 - BFS.ddl$p$TW
+# 
+# # add dummy column of age classes
+# BFS.ddl$Phi$Y04 <- 0
+# BFS.ddl$Phi$Y04[BFS.ddl$Phi$ageclass04=='[0,3.9]'] <- 1
+# BFS.ddl$Phi$A04 <- 1 - BFS.ddl$Phi$Y04
+# 
+# 
+# BFS.ddl$p$TW <- 0
+# BFS.ddl$p$TW[BFS.ddl$p$region=='T'] <- 1
+# BFS.ddl$p$O <- 1 - BFS.ddl$p$TW
 
 ### GoF test ####
 ## Custom GoF Function
@@ -249,7 +249,7 @@ age.model.results.adj = adjust.chat(chat, merge.mark(age.model.results, GOF.mode
 
 
 # export model selection table as csv file
-write.csv(age.model.results.adj[["model.table"]], "age.model.results.adj.7Feb24.csv", row.names = FALSE)
+write.csv(age.model.results.adj[["model.table"]], "age.model.results.adj.1Apr24.csv", row.names = FALSE)
 
 ### Remove all parameterizations of Phi and p with the different age structures, and continue with a04 for Phi and a02 for p. 
 
@@ -268,7 +268,7 @@ rm(list = c(Phi_objects, p_objects))
 # Full parameterization: Phi(~s*a04*r+s*r*t)p(~s*a02*r+s*r*t)
 
 # use dredge() to create all possible conbinations of terms
-fm = lm(O ~ season*ageclass04*region+season*region*time, BFS.ddl$Phi, na.action = na.fail) #create a fake full model #use categorical 'time' here because it's easier to convert, remember to change it back to 'Year' later
+fm = lm(time.minus.year ~ season*ageclass04*region+season*region*time, BFS.ddl$Phi, na.action = na.fail) #create a fake full model #use categorical 'time' here because it's easier to convert, remember to change it back to 'Year' later
 dd = dredge(fm)
 df = dd[,2:12]
 
@@ -509,7 +509,7 @@ for (i in seq(1, 6807, 83)) {
 ### Run models ####
 # Running 6889 models easily causes my computer to crash, so I tried several methods to segment and save progress.
 
-## Plan A: Run 83 models at a time and save workspace fequently ####
+## Plan A: Run 83 models at a time and save workspace frequently ####
 model.results.1_83 = mark.wrapper(model.list=all.cml[1:83,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.84_166 = mark.wrapper(model.list=all.cml[84:166,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.167_249 = mark.wrapper(model.list=all.cml[167:249,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
@@ -520,7 +520,7 @@ model.results.499_581 = mark.wrapper(model.list=all.cml[499:581,],data=BFS.proce
 model.results.582_664 = mark.wrapper(model.list=all.cml[582:664,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.665_747 = mark.wrapper(model.list=all.cml[665:747,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.748_830 = mark.wrapper(model.list=all.cml[748:830,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
-save.image("7Feb24.1.RData")
+save.image("1Apr24.1.RData")
 gc()
 
 model.results.831_913 = mark.wrapper(model.list=all.cml[831:913,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
@@ -533,7 +533,7 @@ model.results.1329_1411 = mark.wrapper(model.list=all.cml[1329:1411,],data=BFS.p
 model.results.1412_1494 = mark.wrapper(model.list=all.cml[1412:1494,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.1495_1577 = mark.wrapper(model.list=all.cml[1495:1577,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.1578_1660 = mark.wrapper(model.list=all.cml[1578:1660,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
-save.image("7Feb24.2.RData")
+save.image("1Apr24.2.RData")
 gc()
 
 model.results.1661_1743 = mark.wrapper(model.list=all.cml[1661:1743,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
@@ -546,7 +546,7 @@ model.results.2159_2241 = mark.wrapper(model.list=all.cml[2159:2241,],data=BFS.p
 model.results.2242_2324 = mark.wrapper(model.list=all.cml[2242:2324,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.2325_2407 = mark.wrapper(model.list=all.cml[2325:2407,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.2408_2490 = mark.wrapper(model.list=all.cml[2408:2490,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
-save.image("7Feb24.3.RData")
+save.image("1Apr24.3.RData")
 gc()
 
 model.results.2491_2573 = mark.wrapper(model.list=all.cml[2491:2573,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
@@ -559,7 +559,7 @@ model.results.2989_3071 = mark.wrapper(model.list=all.cml[2989:3071,],data=BFS.p
 model.results.3072_3154 = mark.wrapper(model.list=all.cml[3072:3154,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.3155_3237 = mark.wrapper(model.list=all.cml[3155:3237,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.3238_3320 = mark.wrapper(model.list=all.cml[3238:3320,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
-save.image("7Feb24.4.RData")
+save.image("1Apr24.4.RData")
 gc()
 
 model.results.3321_3403 = mark.wrapper(model.list=all.cml[3321:3403,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
@@ -572,7 +572,7 @@ model.results.3819_3901 = mark.wrapper(model.list=all.cml[3819:3901,],data=BFS.p
 model.results.3902_3984 = mark.wrapper(model.list=all.cml[3902:3984,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.3985_4067 = mark.wrapper(model.list=all.cml[3985:4067,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.4068_4150 = mark.wrapper(model.list=all.cml[4068:4150,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
-save.image("7Feb24.5.RData")
+save.image("1Apr24.5.RData")
 gc()
 
 model.results.4151_4233 = mark.wrapper(model.list=all.cml[4151:4233,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
@@ -585,7 +585,7 @@ model.results.4649_4731 = mark.wrapper(model.list=all.cml[4649:4731,],data=BFS.p
 model.results.4732_4814 = mark.wrapper(model.list=all.cml[4732:4814,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.4815_4897 = mark.wrapper(model.list=all.cml[4815:4897,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.4898_4980 = mark.wrapper(model.list=all.cml[4898:4980,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
-save.image("7Feb24.6.RData")
+save.image("1Apr24.6.RData")
 gc()
 
 model.results.4981_5063 = mark.wrapper(model.list=all.cml[4981:5063,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
@@ -598,7 +598,7 @@ model.results.5479_5561 = mark.wrapper(model.list=all.cml[5479:5561,],data=BFS.p
 model.results.5562_5644 = mark.wrapper(model.list=all.cml[5562:5644,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.5645_5727 = mark.wrapper(model.list=all.cml[5645:5727,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.5728_5810 = mark.wrapper(model.list=all.cml[5728:5810,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
-save.image("7Feb24.7.RData")
+save.image("1Apr24.7.RData")
 gc()
 
 model.results.5811_5893 = mark.wrapper(model.list=all.cml[5811:5893,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
@@ -611,13 +611,13 @@ model.results.6309_6391 = mark.wrapper(model.list=all.cml[6309:6391,],data=BFS.p
 model.results.6392_6474 = mark.wrapper(model.list=all.cml[6392:6474,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.6475_6557 = mark.wrapper(model.list=all.cml[6475:6557,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.6558_6640 = mark.wrapper(model.list=all.cml[6558:6640,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
-save.image("7Feb24.8.RData")
+save.image("1Apr24.8.RData")
 gc()
 
 model.results.6641_6723 = mark.wrapper(model.list=all.cml[6641:6723,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.6724_6806 = mark.wrapper(model.list=all.cml[6724:6806,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.6807_6889 = mark.wrapper(model.list=all.cml[6807:6889,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
-save.image("7Feb24.9.RData")
+save.image("1Apr24.9.RData")
 gc()
 
 
@@ -626,45 +626,46 @@ gc()
 
 ## Plan B: Use a loop to wrap 83 models at a time, save the object and immediately remove it to free up the CPUs ####
 
+# This method somehow causes the RStudio to crash
 # Loop to wrap model lists, save and remove the object each time
 
-for (i in seq(1, 6807, 83)) {
-  j = i + 82
-  # Construct and evaluate the code
-  eval(parse(text = paste0(
-    "model.results.", i, "_", j, " <- mark.wrapper(",
-    "model.list = all.cml[", i, ":", j, ",],",
-    "data = BFS.process,",
-    "ddl = BFS.ddl,",
-    "invisible = FALSE,",
-    "delete = TRUE,",
-    "adjust = TRUE,",
-    "chat = chat,",
-    "threads = 14",
-    ")"
-  )))
-  
-  # Save the results
-  eval(parse(text = paste0(
-    "saveRDS(model.results.", i, "_", j, ", file = \"model.results.", i, "_", j, ".rds\")"
-  )))
-  
-  # Remove the results from the environment
-  eval(parse(text = paste0(
-    "rm(model.results.", i, "_", j, ")"
-  )))
-}
+# for (i in seq(1, 6807, 83)) {
+#   j = i + 82
+#   # Construct and evaluate the code
+#   eval(parse(text = paste0(
+#     "model.results.", i, "_", j, " <- mark.wrapper(",
+#     "model.list = all.cml[", i, ":", j, ",],",
+#     "data = BFS.process,",
+#     "ddl = BFS.ddl,",
+#     "invisible = FALSE,",
+#     "delete = TRUE,",
+#     "adjust = TRUE,",
+#     "chat = chat,",
+#     "threads = 14",
+#     ")"
+#   )))
+#   
+#   # Save the results
+#   eval(parse(text = paste0(
+#     "saveRDS(model.results.", i, "_", j, ", file = \"model.results.", i, "_", j, ".rds\")"
+#   )))
+#   
+#   # Remove the results from the environment
+#   eval(parse(text = paste0(
+#     "rm(model.results.", i, "_", j, ")"
+#   )))
+# }
 
 
 # Restore the object (model.results.i_i+82 = readRDS(file = "model.results.i_i+82.rds")
-
-for (i in seq(1, 6807, 83)) {
-  j = i + 82
-  # Construct and evaluate the code
-  eval(parse(text = paste0(
-    "model.results.", i, "_", j, " <- readRDS(file = \"model.results.", i, "_", j, ".rds\")"
-  )))
-}
+# 
+# for (i in seq(1, 6807, 83)) {
+#   j = i + 82
+#   # Construct and evaluate the code
+#   eval(parse(text = paste0(
+#     "model.results.", i, "_", j, " <- readRDS(file = \"model.results.", i, "_", j, ".rds\")"
+#   )))
+# }
 
 
 
@@ -772,7 +773,8 @@ model.results.all = merge.mark(model.results.all.1, model.results.all.2, model.r
 saveRDS(model.results.all, file = "model.results.all.rds")
 
 # save model selection result
-write.csv(model.results.all[["model.table"]], "model.results.all.Feb2024.csv", row.names = FALSE)
+write.csv(model.results.all[["model.table"]], "model.results.all.2Apr2024.csv", row.names = TRUE)
+
 
 ## Remove all parameterizations of Phi and p
 # Filter objects that start with "Phi." or "p."
@@ -794,6 +796,15 @@ write.csv(all.avg.p[["estimates"]], "all.avg.p.Feb2024.csv", row.names = FALSE)
 
 
 ## [Optional] Step 3: Test specific models #####
+
+# Phi(~season + region)p(~ageclass02 * season + region * season * Year)
+Phi.s_r.p.sa_sry <- mark(data=BFS.process, ddl=BFS.ddl, model.parameters=list(Phi=list(formula=~season + region), p=list(formula=~season*ageclass02 + season*region*Year)), 
+                       invisible=F, delete=T, adjust=T)
+Phi.s_r.p.sa_sry$results$real
+Phi.s_r.p.sa_sry$results$beta
+write.csv(Phi.s_r.p.sa_sry$results$real, "Phi.s_r.p.sa_sry.real.csv")
+write.csv(Phi.s_r.p.sa_sry$results$beta, "Phi.s_r.p.sa_sry.beta.csv")
+
 
 # Phi(~season)p(~ageclass02 * season + region * season * Year)
 Phi.s.p.sa_sry <- mark(data=BFS.process, ddl=BFS.ddl, model.parameters=list(Phi=list(formula=~season), p=list(formula=~season*ageclass02 + season*region*Year)), 

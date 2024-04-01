@@ -7,15 +7,15 @@ library(scales)
 
 ### Clean up input files ####
 ## read file of real estimates of the top model Phi.s.p.sa_sry
-Phi.s.p.sa_sry.df = read.csv("Phi.s.p.sa_sry.real.csv")
+Phi.s_r.p.sa_sry.df = read.csv("Phi.s_r.p.sa_sry.real.csv")
 
-Phi.s.p.sa_sry.df = Phi.s.p.sa_sry.df[,1:5]
+Phi.s_r.p.sa_sry.df = Phi.s_r.p.sa_sry.df[,1:5]
 
 ## split X column into five
-Phi.s.p.sa_sry.df[c('par', 'group', 'cohort', 'age', 'time')] <- stringr::str_split_fixed(Phi.s.p.sa_sry.df$X, ' ', 5)
+Phi.s_r.p.sa_sry.df[c('par', 'group', 'cohort', 'age', 'time')] <- stringr::str_split_fixed(Phi.s_r.p.sa_sry.df$X, ' ', 5)
 
 ## extract information needed
-real.df <- Phi.s.p.sa_sry.df %>%
+real.df <- Phi.s_r.p.sa_sry.df %>%
   # Extract year from time and convert to numeric for rounding
   mutate(Year = as.numeric(str_extract(time, "\\d+")),
          # Determine season based on whether time has ".5"
@@ -51,20 +51,14 @@ Phi_1.df = real.df[real.df$par == "Phi",]
 # p
 p_1.df = real.df[real.df$par == "p",]
 
-
-
-
-# p_1.real.edit = read.csv("p_1.real.edit.csv", colClasses = c("character", "numeric", "numeric", "numeric", "numeric", "factor", "factor", "factor", "factor", "factor", "character", "factor", "factor", "numeric", "factor"))
-# Phi_1.real.edit = read.csv("Phi_1.real.edit.csv", colClasses = c("character", "numeric", "numeric", "numeric", "numeric", "character", "factor"))
-
-
 ### Plotting ####
 
 ## Phi
 
-Phi_1 <- ggplot(Phi_1.df, aes(x = Season, y = estimate)) + 
-  geom_errorbar(aes(ymin = lcl, ymax = ucl), size = 1, width = 0) +  # Ensure there's a plus here
-  geom_point(size = 4, color = "#28AAA0") +  # Adjust the size to your preference
+Phi_1 <- ggplot(Phi_1.df, aes(x = Season, y = estimate, ymin=lcl, ymax=ucl, group = Region)) +
+  geom_errorbar(size = 1, width = 0, position = position_dodge(width = 0.3)) +
+  geom_point(aes(color = Region),size = 4, position = position_dodge(width = 0.3)) +
+  scale_color_manual(values = c("Japan" = "#942492", "Taiwan" = "#28AAA0", "South China" = "#FAAE40")) +
   theme_bw() +
   labs(x = "Season", 
        y = "Survival Probability", 
@@ -76,7 +70,8 @@ Phi_1 <- ggplot(Phi_1.df, aes(x = Season, y = estimate)) +
     axis.title = element_text(size = 14),  # Increase axis title text size
     axis.text = element_text(size = 11),  # Increase axis text size
   ) +
-  scale_y_continuous(labels = scales::percent_format(), limits = c(0, 1))
+  scale_y_continuous(labels = scales::percent_format(), limits = c(0.6, 1))
+
   
 # save as svg
 ggsave("Phi_1.svg", plot = Phi_1, width = 20, height = 15, units = "cm")
@@ -123,6 +118,7 @@ ggsave("p_1.svg", plot = p_1, width = 20, height = 15, units = "cm")
 
 
 ### Model averaging estimates ####
+
 # read file of read estimates
 all.avg = read.csv("all.avg.0201.csv")
 
@@ -230,7 +226,4 @@ ggplot(data = Phi.plotting.2[!Phi.plotting.2$region=="K" & Phi.plotting.2$agegro
     plot.title = element_text(hjust = 0.5, size = 16),
   ) +
   ylim(0.7, 1)
-
-
-
 
