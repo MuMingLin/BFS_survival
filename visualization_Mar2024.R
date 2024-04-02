@@ -51,6 +51,7 @@ Phi_1.df = real.df[real.df$par == "Phi",]
 # p
 p_1.df = real.df[real.df$par == "p",]
 
+
 ### Plotting ####
 
 ## Phi
@@ -226,4 +227,5 @@ ggplot(data = Phi.plotting.2[!Phi.plotting.2$region=="K" & Phi.plotting.2$agegro
     plot.title = element_text(hjust = 0.5, size = 16),
   ) +
   ylim(0.7, 1)
+
 
