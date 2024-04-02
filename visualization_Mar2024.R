@@ -6,9 +6,8 @@ library(ggplot2)
 library(scales)
 
 ### Clean up input files ####
-## read file of real estimates of the top model Phi.s.p.sa_sry
+## read file of real estimates of the best model Phi.s_r.p.sa_sry
 Phi.s_r.p.sa_sry.df = read.csv("Phi.s_r.p.sa_sry.real.csv")
-
 Phi.s_r.p.sa_sry.df = Phi.s_r.p.sa_sry.df[,1:5]
 
 ## split X column into five
@@ -32,7 +31,7 @@ real.df <- Phi.s_r.p.sa_sry.df %>%
            TRUE ~ "2yo+"
          ),
          # Determine Region based on 'group' value
-         Region = case_when(
+         `Wintering Region` = case_when(
            str_detect(group, "J") ~ "Japan",
            str_detect(group, "S") ~ "South China",
            str_detect(group, "T") ~ "Taiwan",
@@ -43,21 +42,61 @@ real.df <- Phi.s_r.p.sa_sry.df %>%
 str(real.df)
 
 
+## read file of real estimates of the 2nd best model Phi.s_a_r.p.sa_sry
+Phi.s_a_r.p.sa_sry.df = read.csv("Phi.s_a_r.p.sa_sry.real.csv")
+Phi.s_a_r.p.sa_sry.df = Phi.s_a_r.p.sa_sry.df[,1:5]
+
+## split X column into five
+Phi.s_a_r.p.sa_sry.df[c('par', 'group', 'cohort', 'age', 'time')] <- stringr::str_split_fixed(Phi.s_a_r.p.sa_sry.df$X, ' ', 5)
+
+## extract information needed
+real.2.df <- Phi.s_a_r.p.sa_sry.df %>%
+  # Extract year from time and convert to numeric for rounding
+  mutate(Year = as.numeric(str_extract(time, "\\d+")),
+         # Determine season based on whether time has ".5"
+         Season = ifelse(str_detect(time, "\\.5"), "Winter", "Summer"),
+         # Adjust Season based on 'par' value
+         Season = case_when(
+           par == "Phi" & Season == "Summer" ~ "Summer–Winter",
+           par == "Phi" & Season == "Winter" ~ "Winter–Summer",
+           TRUE ~ Season
+         ),
+         # Determine Age category based on 'age' value
+         Age = case_when(
+           age %in% c("a0.5", "a1") ~ "0–4yo",
+           TRUE ~ "4yo+"
+         ),
+         # Determine Region based on 'group' value
+         "Wintering Region" = case_when(
+           str_detect(group, "J") ~ "Japan",
+           str_detect(group, "S") ~ "South China",
+           str_detect(group, "T") ~ "Taiwan",
+           TRUE ~ NA_character_
+         ))
+
+# Check the structure of the modified dataframe
+str(real.2.df)
+
+
+
+
+
 ## Subsetting
 
 # Phi
 Phi_1.df = real.df[real.df$par == "Phi",]
-
+Phi_2.df = real.2.df[real.2.df$par == "Phi",]
 # p
 p_1.df = real.df[real.df$par == "p",]
+p_2.df = real.2.df[real.2.df$par == "p",]
 
 ### Plotting ####
 
-## Phi
+## Phi - 1st model
 
-Phi_1 <- ggplot(Phi_1.df, aes(x = Season, y = estimate, ymin=lcl, ymax=ucl, group = Region)) +
+Phi_1 <- ggplot(Phi_1.df, aes(x = Season, y = estimate, ymin=lcl, ymax=ucl, group = `Wintering Region`)) +
   geom_errorbar(size = 1, width = 0, position = position_dodge(width = 0.3)) +
-  geom_point(aes(color = Region),size = 4, position = position_dodge(width = 0.3)) +
+  geom_point(aes(color = `Wintering Region`),size = 4, position = position_dodge(width = 0.3)) +
   scale_color_manual(values = c("Japan" = "#942492", "Taiwan" = "#28AAA0", "South China" = "#FAAE40")) +
   theme_bw() +
   labs(x = "Season", 
@@ -76,22 +115,57 @@ Phi_1 <- ggplot(Phi_1.df, aes(x = Season, y = estimate, ymin=lcl, ymax=ucl, grou
 # save as svg
 ggsave("Phi_1.svg", plot = Phi_1, width = 20, height = 15, units = "cm")
 
+## Phi - 2nd model
+
+Phi_2 <- ggplot(Phi_2.df, aes(x = `Wintering Region`, y = estimate, ymin = lcl, ymax = ucl, 
+                      group = interaction(`Wintering Region`, Season, Age))) +
+geom_errorbar(size = 1, width = 0, position = position_dodge(width = 0.3)) +
+geom_point(aes(shape = Age, fill = Age, size = Age, color = `Wintering Region`), stroke = 1, position = position_dodge(width = 0.3)) +
+scale_shape_manual(values = c("0–4yo" = 21, "4yo+" = 16)) +  # Set shapes for hollow (21) and solid (16) points
+scale_size_manual(values=c(3.8, 4)) +
+scale_fill_manual(values=c("white", "white")) +
+scale_color_manual(values = c("Japan" = "#942492", "Taiwan" = "#28AAA0", "South China" = "#FAAE40")) +
+facet_wrap(~Season, ncol = 2, scales = "free_x", strip.position = "top") +
+theme_bw() +
+labs(x = "Wintering Region", y = "Survival Probability", color = "Wintering Region") +
+scale_y_continuous(labels = percent_format(), limits = c(0.6, 1)) +
+theme(panel.grid = element_blank(),
+                  strip.background = element_rect(colour = "black", fill = NA),
+                  text = element_text(size = 12),
+                  axis.title = element_text(size = 14),
+                  axis.text = element_text(size = 11),
+                  legend.position = "right",
+                  legend.title = element_text(size = 12),  # Increase legend title text size
+                  legend.text = element_text(size = 11, color = "grey20"),
+                  strip.text = element_text(size = 14),
+                  axis.title.x=element_blank(),
+                  axis.text.x=element_blank(),
+                  axis.ticks.x=element_blank())
+
+
+
+# save as svg
+ggsave("Phi_2.svg", plot = Phi_2, width = 20, height = 15, units = "cm")
+
+
+
 
 ## p
 
-p_1 <- ggplot(p_1.df, aes(x = Year, y = estimate, color = Region, group = interaction(Age, Season, Region))) +
-  geom_ribbon(aes(ymin = lcl, ymax = ucl, fill = Region), alpha = 0.1, color = NA, show.legend = FALSE) +  # Add shaded area for confidence interval
-  geom_line() +
-  geom_point(aes(shape = Age), size = 1.5) +  # Adjust the size to your preference
+p_1 <- ggplot(p_1.df, aes(x = Year, y = estimate, group = interaction(Age, Season, `Wintering Region`))) +
+  geom_ribbon(aes(ymin = lcl, ymax = ucl, fill = `Wintering Region`), alpha = 0.1, color = NA, show.legend = FALSE) +  # Add shaded area for confidence interval
+  geom_line(aes(color = `Wintering Region`)) +
+  geom_point(aes(shape = Age, fill = Age, size = Age, color = `Wintering Region`), stroke = 0.5) +  # Adjust the size to your preference
   scale_shape_manual(values = c("0–2yo" = 21, "2yo+" = 16)) +  # Set shapes for hollow (21) and solid (16) points
+  scale_size_manual(values=c(1.9, 2)) +
+  scale_fill_manual(values=c("0–2yo"="white", "2yo+"="white","Japan" = "#942492", "Taiwan" = "#28AAA0", "South China" = "#FAAE40" )) +
   scale_color_manual(values = c("Japan" = "#942492", "Taiwan" = "#28AAA0", "South China" = "#FAAE40")) +  # Custom colors for lines and points
-  scale_fill_manual(values = c("Japan" = "#942492", "Taiwan" = "#28AAA0", "South China" = "#FAAE40")) +  # Custom colors for ribbon fills
   facet_wrap(~Season, ncol = 1, scales = "free_y", strip.position = "top") +  # Separated facets for each season
   theme_bw() +
   theme(
     panel.grid = element_blank(),  # Remove all gridlines
     strip.background = element_rect(colour = "black", fill = NA),  # Black lines for facet wrap
-    panel.spacing = unit(0.5, "lines"),  # Increase space between facets
+    panel.spacing = unit(0.8, "lines"),  # Increase space between facets
     legend.position = c(0.5, 0.92),
     legend.direction = "horizontal",
     legend.box = "horizontal", # This ensures the legend keys are in a single row
@@ -106,11 +180,10 @@ p_1 <- ggplot(p_1.df, aes(x = Year, y = estimate, color = Region, group = intera
   ) +
   labs(x = "Year", 
        y = "Resighting Probability", 
-       color = "Region",
        title = "") +
   scale_y_continuous(labels = percent_format(), limits = c(0, 1)) +
-  scale_x_continuous(breaks = seq(2006, 2023, by = 2))  # Add more x-axis labels
-
+  scale_x_continuous(breaks = seq(2006, 2023, by = 2)) +  # Add more x-axis labels
+  guides(fill = FALSE)
 
 # Save the plot
 ggsave("p_1.svg", plot = p_1, width = 20, height = 15, units = "cm")
@@ -226,4 +299,5 @@ ggplot(data = Phi.plotting.2[!Phi.plotting.2$region=="K" & Phi.plotting.2$agegro
     plot.title = element_text(hjust = 0.5, size = 16),
   ) +
   ylim(0.7, 1)
+
 

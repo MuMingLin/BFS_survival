@@ -249,7 +249,7 @@ age.model.results.adj = adjust.chat(chat, merge.mark(age.model.results, GOF.mode
 
 
 # export model selection table as csv file
-write.csv(age.model.results.adj[["model.table"]], "age.model.results.adj.1Apr24.csv", row.names = FALSE)
+write.csv(age.model.results.adj[["model.table"]], "age.model.results.adj.3Apr24.csv", row.names = TRUE)
 
 ### Remove all parameterizations of Phi and p with the different age structures, and continue with a04 for Phi and a02 for p. 
 
@@ -804,6 +804,17 @@ Phi.s_r.p.sa_sry$results$real
 Phi.s_r.p.sa_sry$results$beta
 write.csv(Phi.s_r.p.sa_sry$results$real, "Phi.s_r.p.sa_sry.real.csv")
 write.csv(Phi.s_r.p.sa_sry$results$beta, "Phi.s_r.p.sa_sry.beta.csv")
+
+
+# Phi(~season + ageclass04 + region)p(~ageclass02 * season + region * season * Year)
+Phi.s_a_r.p.sa_sry <- mark(data=BFS.process, ddl=BFS.ddl, model.parameters=list(Phi=list(formula=~season + ageclass04 + region), p=list(formula=~season*ageclass02 + season*region*Year)), 
+                         invisible=F, delete=T, adjust=T)
+Phi.s_a_r.p.sa_sry$results$real
+Phi.s_a_r.p.sa_sry$results$beta
+write.csv(Phi.s_a_r.p.sa_sry$results$real, "Phi.s_a_r.p.sa_sry.real.csv")
+write.csv(Phi.s_a_r.p.sa_sry$results$beta, "Phi.s_a_r.p.sa_sry.beta.csv")
+
+
 
 
 # Phi(~season)p(~ageclass02 * season + region * season * Year)
