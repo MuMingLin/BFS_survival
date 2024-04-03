@@ -90,6 +90,7 @@ Phi_2.df = real.2.df[real.2.df$par == "Phi",]
 p_1.df = real.df[real.df$par == "p",]
 p_2.df = real.2.df[real.2.df$par == "p",]
 
+
 ### Plotting ####
 
 ## Phi - 1st model
