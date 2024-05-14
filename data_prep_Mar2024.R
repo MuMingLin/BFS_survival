@@ -11,7 +11,9 @@ library(lubridate) # working with time & date format
 ## Read raw data (n=22,873)
 
 # import re-sighting records (including banding information)
-raw = read.csv("RBAll_95-23_20231207.csv", na.strings=c(""))
+raw = read.csv("RBAll_95-23_20231207.csv", colClasses="character")
+head(raw)
+names(raw)[1]="UID" # TL: when I import the file, the name of the first column is ï..UID, therefore, this line of code is needed. Moreover, I changed the long connection line with a shorter one for the age class definition in the csv-file, as the longer connection lines were not recognized by my R version.
 
 # number of records: 22,873
 nrow(raw)
@@ -28,6 +30,7 @@ tail(unified_time)
 
 # save in a new column
 raw$observation.date = unified_time
+head(raw)
 
 # sort the records by time
 raw = raw[order(raw$observation.date),]
@@ -44,6 +47,7 @@ colnames(band)[colnames(band)=="observation.date"] = "banded.date"
 res = raw[,c("UID","band.of.ind.", "region_4","observation.date","retrieved.from")]
 # remove resightings without bird id (n=22,873→22,871)
 res = res[!is.na(res$band.of.ind.),]
+# TL: when I run this code, n remains 22,873
 
 # join banding info to all resightings
 BFS_all = left_join(res, band[,c(2,4,5,6)], by="band.of.ind.")
@@ -54,7 +58,7 @@ BFS_all$UID = as.factor(BFS_all$UID)
 BFS_all$band.of.ind. = as.factor(BFS_all$band.of.ind.)
 BFS_all$region_4 = as.factor(BFS_all$region_4)
 BFS_all$retrieved.from = as.factor(BFS_all$retrieved.from)
-BFS_all$banded.age = as.numeric(BFS_all$banded.age) # NAs came from the unknwon group
+BFS_all$banded.age = as.numeric(BFS_all$banded.age) # NAs came from the unknown group
 BFS_all$banded.ageclass = as.factor(BFS_all$banded.ageclass)
 
 
@@ -62,6 +66,10 @@ BFS_all$banded.ageclass = as.factor(BFS_all$banded.ageclass)
 
 # the bird's age at the time of each resighting = banded age + time difference between the observation and the banding date
 BFS_all$current.age = BFS_all$banded.age + time_length(difftime(BFS_all$observation.date, BFS_all$banded.date), "years")
+
+table(is.na(BFS_all$current.age))
+table(round(BFS_all$current.age,0))
+
 
 # remove incorrect records that were earlier than banding, and records without definite age
 BFS_all = BFS_all[BFS_all$current.age>0 & !is.na(BFS_all$current.age),]
@@ -421,7 +429,7 @@ table(BFS_06_23_winter[,"most_visited"])
 
 # extract "band.of.ind." & "most_visited"
 winter = BFS_06_23_winter[,c("band.of.ind.","most_visited")] # NA = never been seen during non-breeding seasons
-
+table(winter$most_visited)
 
 ### Data coverage & Encounter history ####
 
@@ -467,7 +475,7 @@ BFS_all.T.R.C = BFS_all.T.R.B %>%
       # Include data from other specified regions (T, S, J) during the wintering season (November to February)
       (month(observation.date) %in% c(11, 12, 1, 2) & region_4 %in% c("T", "S", "J")) |
       # Include data from all regions during March, April, September, and October
-      (month(observation.date) %in% c(3, 4, 9, 10))
+      (month(observation.date) %in% c(3, 4, 9, 10)) # TL: these data are excluded from the analysis, right?
   )
  
 # number of records: 17,297
@@ -599,13 +607,13 @@ merged2 = merge(merged, BFS_first_age[, c("band.of.ind.","current.age")], by = "
 # remove rows with missing value  
 merged3 = na.omit(merged2)
 
-# number of individuals: 513
+# number of individuals: 513 (TL: 515)
 nrow(merged3)
 
 # remove 18 individuals with atypical wintering region (South [K]orea, [N]orthern China, [O]ther regions, and unclear)
 merged4 = merged3[!(merged3$most_visited %in% c("K", "N", "O", "unclear")), ]
 
-# number of individuals: 495
+# number of individuals: 495 (TL: 497)
 nrow(merged4)
 
 # set id as rownames
