@@ -46,8 +46,8 @@ colnames(band)[colnames(band)=="observation.date"] = "banded.date"
 # resightings (including banding events)
 res = raw[,c("UID","band.of.ind.", "region_4","observation.date","retrieved.from")]
 # remove resightings without bird id (n=22,873→22,871)
-res = res[!is.na(res$band.of.ind.),]
-# TL: when I run this code, n remains 22,873
+res = res[res$band.of.ind. != "", ]
+# TL: when I run this code, n remains 22,873 # MML: I revised the line so that it can select and remove the 2 rows with empty strings
 
 # join banding info to all resightings
 BFS_all = left_join(res, band[,c(2,4,5,6)], by="band.of.ind.")
@@ -607,13 +607,13 @@ merged2 = merge(merged, BFS_first_age[, c("band.of.ind.","current.age")], by = "
 # remove rows with missing value  
 merged3 = na.omit(merged2)
 
-# number of individuals: 513 (TL: 515)
+# number of individuals: 513 (TL: 515) #MML: fixed
 nrow(merged3)
 
 # remove 18 individuals with atypical wintering region (South [K]orea, [N]orthern China, [O]ther regions, and unclear)
 merged4 = merged3[!(merged3$most_visited %in% c("K", "N", "O", "unclear")), ]
 
-# number of individuals: 495 (TL: 497)
+# number of individuals: 495 (TL: 497) #MML: fixed
 nrow(merged4)
 
 # set id as rownames
