@@ -239,6 +239,41 @@ p.sxa01234xrxt = list(formula = ~ season*ageclass01234*region+season*region*Year
 age.cml = create.model.list("CJS")
 age.model.results = mark.wrapper.parallel(model.list=age.cml,data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,parallel = TRUE,cpus = 14)
 
+### TL: MODEL AVERAGING example ###
+### How to get model averaged (real) estimates?
+est.mod.avg = model.average(age.model.results, vcv=T) # TL: my laptop has issues calculating vcv (and CI) due to memory limits. 
+# therefore, for this example, I leave out the CI estimation: 
+est.mod.avg = model.average(age.model.results, se=T)
+# this dataframe has 16830 rows, which consists of the combination of ddl.Phi and ddl.p, where par.index in est.mod.avg is matched with model.index in the ddl's:
+names(BFS.ddl$Phi)
+names(BFS.ddl$p)
+# add a column with Phi or p so they can be plotted separately
+BFS.ddl$Phi$parameter = "Phi"
+BFS.ddl$p$parameter = "p"
+# structure and rownames of the two ddl's are exactly the same, so they can be combined with rbind:
+BFS.ddl.comb <- rbind(BFS.ddl$Phi, BFS.ddl$p)
+# only keep relevant columns of BFS.ddl.comb:
+BFS.ddl.comb = BFS.ddl.comb[,c(2,3,9,11,13,16,23)]
+# create ageclass column based on Age:
+BFS.ddl.comb$ageclass = BFS.ddl.comb$Age
+BFS.ddl.comb$ageclass[BFS.ddl.comb$Age>4]=4
+BFS.ddl.comb$ageclass <- floor(BFS.ddl.comb$ageclass)
+BFS.ddl.comb$ageclass <- as.factor(BFS.ddl.comb$ageclass)
+
+# combine with model-averaged estimates:
+est.mod.avg.comb <- cbind(est.mod.avg, BFS.ddl.comb)
+# now only keep the unique estimates, after removing the par.index and model.index column (that I kept in for checking that the cbind combined the correct rows of both files), and the Age column:
+est.mod.avg.uni <- unique(est.mod.avg.comb[,c(2:3,5,7:11)])
+# plot the Phi estimates
+est.mod.avg.uni %>%
+  filter(parameter == "Phi") %>%
+  ggplot(aes(x=Year, y=estimate, colour=ageclass)) +
+  geom_errorbar(aes(ymin=estimate-1.96*se, ymax=estimate+1.96*se), width=.1, position=position_dodge(0.3)) +
+  facet_grid(rows = vars(region), cols=vars(season)) +
+  geom_line() +
+  geom_point()
+### TL: END MODEL AVERAGING example ###
+
 # if invisible = TRUE, window for running MARK is hidden
 # threads: number of cpus to use with mark.exe
 # if delete = TRUE, the output ﬁles are deleted after the results are extracted
