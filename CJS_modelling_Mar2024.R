@@ -805,11 +805,15 @@ rm("model.results.1_83", "model.results.84_166", "model.results.167_249", "model
 
 # merge all the medium lists into the final big list
 model.results.all = merge.mark(model.results.all.1, model.results.all.2, model.results.all.3, model.results.all.4, model.results.all.5, model.results.all.6, model.results.all.7)
-saveRDS(model.results.all, file = "model.results.all.rds")
+saveRDS(model.results.all, file = "model.results.all.rds") 
+# read the rds file from here without running all models again 
+# model.results.all=readRDS("model.results.all.rds")
 
-# save model selection result
-write.csv(model.results.all[["model.table"]], "model.results.all.2Apr2024.csv", row.names = TRUE)
+# extract model table
+model.table.all = model.results.all[["model.table"]]
 
+# save model table
+write.csv(model.table.all, "model.table.all.May2024.csv", row.names = TRUE)
 
 ## Remove all parameterizations of Phi and p
 # Filter objects that start with "Phi." or "p."
@@ -820,14 +824,18 @@ p_objects <- ls()[grep("^p.", ls())]
 rm(list = c(Phi_objects, p_objects))
 
 ### Model averaging #########
+
+# Subsetting
+model.results.001 = model.results.all[1:25,]
+
 # Phi
-all.avg.Phi=model.average(model.results.all,"Phi",vcv=TRUE)
+all.avg.Phi=model.average(model.results.001,"Phi",vcv=TRUE, drop=FALSE)
 saveRDS(all.avg.Phi, file = "all.avg.Phi.rds")
-write.csv(all.avg.Phi[["estimates"]], "all.avg.Phi.Feb2024.csv", row.names = FALSE)
+write.csv(all.avg.Phi[["estimates"]], "all.avg.Phi.May2024.csv", row.names = FALSE)
 # p
-all.avg.p=model.average(model.results.all,"p",vcv=TRUE)
+all.avg.p=model.average(model.results.all,"p",vcv=TRUE, drop=FALSE)
 saveRDS(all.avg.p, file = "all.avg.p.rds")
-write.csv(all.avg.p[["estimates"]], "all.avg.p.Feb2024.csv", row.names = FALSE)
+write.csv(all.avg.p[["estimates"]], "all.avg.p.May2024.csv", row.names = FALSE)
 
 
 ## [Optional] Step 3: Test specific models #####
