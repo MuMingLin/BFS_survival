@@ -284,7 +284,7 @@ age.model.results.adj = adjust.chat(chat, merge.mark(age.model.results, GOF.mode
 
 
 # export model selection table as csv file
-write.csv(age.model.results.adj[["model.table"]], "age.model.results.adj.3Apr24.csv", row.names = TRUE)
+write.csv(age.model.results.adj[["model.table"]], "age.model.results.adj.24May24.csv", row.names = TRUE)
 
 ### Remove all parameterizations of Phi and p with the different age structures, and continue with a04 for Phi and a02 for p. 
 
