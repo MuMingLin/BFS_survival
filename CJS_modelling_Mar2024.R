@@ -239,7 +239,7 @@ p.sxa01234xrxt = list(formula = ~ season*ageclass01234*region+season*region*Year
 age.cml = create.model.list("CJS")
 age.model.results = mark.wrapper.parallel(model.list=age.cml,data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,parallel = TRUE,cpus = 14)
 
-### TL: MODEL AVERAGING example ###
+### TL: MODEL AVERAGING example ####
 ### How to get model averaged (real) estimates?
 est.mod.avg = model.average(age.model.results, vcv=T) # TL: my laptop has issues calculating vcv (and CI) due to memory limits. 
 # therefore, for this example, I leave out the CI estimation: 
@@ -824,18 +824,131 @@ p_objects <- ls()[grep("^p.", ls())]
 rm(list = c(Phi_objects, p_objects))
 
 ### Model averaging #########
+## Load modelling results
+# Read the marklist object with the results of 6889 models
+model.results.all=readRDS("model.results.all.rds")
 
-# Subsetting
-model.results.001 = model.results.all[1:25,]
+## Averaging models with weight > 0.01 
+# extract model table
+model.table.all = model.results.all$model.table
+# Filter models with weight > 0.01
+model.table.001 = model.table.all[model.table.all$weight > 0.01, ]
+# Get the indices of the models that meet the weight criteria
+model_indices = as.numeric(rownames(model.table.001))
+# Get the indices of the models that need to be removed
+indices_to_remove = setdiff(1:length(model.results.all), model_indices)
+# Do not include the last element - the model table
+indices_to_remove = head(indices_to_remove, -1)
+# Get the subset marklist to include only the models with a weight > 0.01
+marklist.001 = remove.mark(model.results.all, indices_to_remove)
+# Perform model averaging on the subsetted models
+est.mod.avg.001 = model.average(marklist.001, vcv=T)
+# Save the model averaging results
+saveRDS(est.mod.avg.001, file = "est.mod.avg.001.rds") 
 
-# Phi
-all.avg.Phi=model.average(model.results.001,"Phi",vcv=TRUE, drop=FALSE)
-saveRDS(all.avg.Phi, file = "all.avg.Phi.rds")
-write.csv(all.avg.Phi[["estimates"]], "all.avg.Phi.May2024.csv", row.names = FALSE)
-# p
-all.avg.p=model.average(model.results.all,"p",vcv=TRUE, drop=FALSE)
-saveRDS(all.avg.p, file = "all.avg.p.rds")
-write.csv(all.avg.p[["estimates"]], "all.avg.p.May2024.csv", row.names = FALSE)
+## Organize the structure of the estimates table
+# add a column with Phi or p so they can be plotted separately
+BFS.ddl$Phi$parameter = "Phi"
+BFS.ddl$p$parameter = "p"
+# structure and rownames of the two ddl's are exactly the same, so they can be combined with rbind:
+BFS.ddl.comb <- rbind(BFS.ddl$Phi, BFS.ddl$p)
+# only keep relevant columns of BFS.ddl.comb:
+BFS.ddl.comb = BFS.ddl.comb[,c(2,3,9,11,13,16,23)]
+# create ageclass column based on Age:
+BFS.ddl.comb$a02 = BFS.ddl.comb$Age
+BFS.ddl.comb$a02[BFS.ddl.comb$a02>=2]='2+'
+BFS.ddl.comb$a02[BFS.ddl.comb$a02<2]='0–2'
+BFS.ddl.comb$a02 <- as.factor(BFS.ddl.comb$a02)
+
+BFS.ddl.comb$a04 = BFS.ddl.comb$Age
+BFS.ddl.comb$a04[BFS.ddl.comb$a04>=4]='4+'
+BFS.ddl.comb$a04[BFS.ddl.comb$a04<4]='0–4'
+BFS.ddl.comb$a04 <- as.factor(BFS.ddl.comb$a04)
+
+# combine with model-averaged estimates:
+est.mod.avg.001.comb <- cbind(est.mod.avg.001$estimates, BFS.ddl.comb)
+# now only keep the unique estimates, after removing the par.index and model.index column (that I kept in for checking that the cbind combined the correct rows of both files), and the Age column:
+Phi.001.uni <- unique(est.mod.avg.001.comb[est.mod.avg.001.comb$parameter=="Phi",c(2:5,7,9:11,14)])
+p.001.uni <- unique(est.mod.avg.001.comb[est.mod.avg.001.comb$parameter=="p",c(2:5,7,9:13)])
+
+## Plotting 
+# Define custom labels for the 'region' variable
+region_labels = c("J" = "Japan", "S" = "South China", "T" = "Taiwan")
+season_labels = c("W-S" = "Winter-Summer", "S-W" = "Summer-Winter", "S" = "Summer", "W" = "Winter")
+
+# plot the Phi estimates
+Phi.001.avg = ggplot(Phi.001.uni) +
+  
+  # the 0-4 age group 
+  geom_line(data = subset(Phi.001.uni, a04=='0–4'), aes(x = Year - 0.3, y = estimate, color = a04)) +
+  geom_ribbon(data = subset(Phi.001.uni, a04=='0–4'), aes(x = Year - 0.3, y = estimate, ymin = lcl, ymax = ucl, fill = a04), alpha=0.25) +
+  geom_point(data = subset(Phi.001.uni, a04=='0–4'), aes(x = Year - 0.3, y = estimate, color = a04), size=1) +
+  
+  # the 4+ age group
+  geom_line(data = subset(Phi.001.uni, a04=='4+'), aes(x = Year, y = estimate, color = a04)) +
+  geom_ribbon(data = subset(Phi.001.uni, a04=='4+'), aes(x = Year, y = estimate, ymin = lcl, ymax = ucl, fill = a04), alpha=0.25) +
+  geom_point(data = subset(Phi.001.uni, a04=='4+'), aes(x = Year, y = estimate, color = a04), size=1) +
+  
+  # Facet by region and season
+  facet_grid(rows = vars(season), cols = vars(region), labeller = labeller(region = region_labels, season = season_labels)) +
+  
+  # Add themes and labels
+  theme_bw() +
+  labs(x = "Year", 
+       y = "Survival Probability",
+       color = "Age",
+       title = "") +
+  theme(
+    panel.grid = element_blank(),  # Remove all gridlines
+    strip.background = element_rect(colour = "black", fill = NA),  # Black lines for facet wrap
+    text = element_text(size = 12),  # Base text size for the entire plot
+    axis.title = element_text(size = 14),  # Increase axis title text size
+    axis.text = element_text(size = 11)  # Increase axis text size
+  ) +
+  scale_color_manual(values = c("0–4" = "#2FCCF5", "4+" = "#F58E2F")) +
+  scale_fill_manual(values = c("0–4" = "#2FCCF5", "4+" = "#F58E2F")) +
+  guides(fill = "none")  # Remove the fill legend
+
+# save as svg
+ggsave("Phi.001.avg.svg", plot = Phi.001.avg, width = 20, height = 15, units = "cm")
+
+
+## plot the p estimates
+p.001.avg = ggplot(p.001.uni) +
+  
+  # the 0-2 age group 
+  geom_line(data = subset(p.001.uni, a02=='0–2'), aes(x = Year - 0.3, y = estimate, color = a02)) +
+  geom_ribbon(data = subset(p.001.uni, a02=='0–2'), aes(x = Year - 0.3, y = estimate, ymin = lcl, ymax = ucl, fill = a02), alpha=0.25) +
+  geom_point(data = subset(p.001.uni, a02=='0–2'), aes(x = Year - 0.3, y = estimate, color = a02), size=1) +
+  
+  # the 2+ age group
+  geom_line(data = subset(p.001.uni, a02=='2+'), aes(x = Year, y = estimate, color = a02)) +
+  geom_ribbon(data = subset(p.001.uni, a02=='2+'), aes(x = Year, y = estimate, ymin = lcl, ymax = ucl, fill = a02), alpha=0.25) +
+  geom_point(data = subset(p.001.uni, a02=='2+'), aes(x = Year, y = estimate, color = a02), size=1) +
+  
+  # Facet by region and season
+  facet_grid(rows = vars(season), cols = vars(region), labeller = labeller(region = region_labels, season = season_labels)) +
+  
+  # Add themes and labels
+  theme_bw() +
+  labs(x = "Year", 
+       y = "Resighting Probability",
+       color = "Age",
+       title = "") +
+  theme(
+    panel.grid = element_blank(),  # Remove all gridlines
+    strip.background = element_rect(colour = "black", fill = NA),  # Black lines for facet wrap
+    text = element_text(size = 12),  # Base text size for the entire plot
+    axis.title = element_text(size = 14),  # Increase axis title text size
+    axis.text = element_text(size = 11)  # Increase axis text size
+  ) +
+  scale_color_manual(values = c("0–2" = "#67F5DD", "2+" = "#F58F68")) +
+  scale_fill_manual(values = c("0–2" = "#67F5DD", "2+" = "#F58F68")) +
+  guides(fill = "none")  # Remove the fill legend
+
+
+# save as svg
+ggsave("p.001.avg.svg", plot = p.001.avg, width = 20, height = 15, units = "cm")
 
 
 ## [Optional] Step 3: Test specific models #####
