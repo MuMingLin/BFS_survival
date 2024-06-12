@@ -11,7 +11,7 @@ library(msm) # for Delta method
 ### Data Import/Transform ####
 
 # import BFS data frame
-BFS = read.csv("merged5.C_28Mar.csv", colClasses = c("character", "character", "factor", "numeric"))
+BFS = read.csv("merged6_June24.csv", colClasses = c("character", "character", "factor", "numeric"))
 
 colnames(BFS) = c("birdID", "ch", "region", "age")
 
@@ -284,7 +284,7 @@ age.model.results.adj = adjust.chat(chat, merge.mark(age.model.results, GOF.mode
 
 
 # export model selection table as csv file
-write.csv(age.model.results.adj[["model.table"]], "age.model.results.adj.24May24.csv", row.names = TRUE)
+write.csv(age.model.results.adj[["model.table"]], "age.model.results.adj.June24.csv", row.names = TRUE)
 
 ### Remove all parameterizations of Phi and p with the different age structures, and continue with a04 for Phi and a02 for p. 
 
@@ -555,7 +555,7 @@ model.results.499_581 = mark.wrapper(model.list=all.cml[499:581,],data=BFS.proce
 model.results.582_664 = mark.wrapper(model.list=all.cml[582:664,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.665_747 = mark.wrapper(model.list=all.cml[665:747,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.748_830 = mark.wrapper(model.list=all.cml[748:830,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
-save.image("1Apr24.1.RData")
+save.image("8June24.1.RData")
 gc()
 
 model.results.831_913 = mark.wrapper(model.list=all.cml[831:913,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
@@ -568,7 +568,7 @@ model.results.1329_1411 = mark.wrapper(model.list=all.cml[1329:1411,],data=BFS.p
 model.results.1412_1494 = mark.wrapper(model.list=all.cml[1412:1494,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.1495_1577 = mark.wrapper(model.list=all.cml[1495:1577,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.1578_1660 = mark.wrapper(model.list=all.cml[1578:1660,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
-save.image("1Apr24.2.RData")
+save.image("8June24.2.RData")
 gc()
 
 model.results.1661_1743 = mark.wrapper(model.list=all.cml[1661:1743,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
@@ -581,7 +581,7 @@ model.results.2159_2241 = mark.wrapper(model.list=all.cml[2159:2241,],data=BFS.p
 model.results.2242_2324 = mark.wrapper(model.list=all.cml[2242:2324,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.2325_2407 = mark.wrapper(model.list=all.cml[2325:2407,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.2408_2490 = mark.wrapper(model.list=all.cml[2408:2490,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
-save.image("1Apr24.3.RData")
+save.image("8June24.3.RData")
 gc()
 
 model.results.2491_2573 = mark.wrapper(model.list=all.cml[2491:2573,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
@@ -594,7 +594,7 @@ model.results.2989_3071 = mark.wrapper(model.list=all.cml[2989:3071,],data=BFS.p
 model.results.3072_3154 = mark.wrapper(model.list=all.cml[3072:3154,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.3155_3237 = mark.wrapper(model.list=all.cml[3155:3237,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.3238_3320 = mark.wrapper(model.list=all.cml[3238:3320,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
-save.image("1Apr24.4.RData")
+save.image("8June24.4.RData")
 gc()
 
 model.results.3321_3403 = mark.wrapper(model.list=all.cml[3321:3403,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
@@ -607,7 +607,7 @@ model.results.3819_3901 = mark.wrapper(model.list=all.cml[3819:3901,],data=BFS.p
 model.results.3902_3984 = mark.wrapper(model.list=all.cml[3902:3984,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.3985_4067 = mark.wrapper(model.list=all.cml[3985:4067,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.4068_4150 = mark.wrapper(model.list=all.cml[4068:4150,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
-save.image("1Apr24.5.RData")
+save.image("8June24.5.RData")
 gc()
 
 model.results.4151_4233 = mark.wrapper(model.list=all.cml[4151:4233,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
@@ -620,7 +620,7 @@ model.results.4649_4731 = mark.wrapper(model.list=all.cml[4649:4731,],data=BFS.p
 model.results.4732_4814 = mark.wrapper(model.list=all.cml[4732:4814,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.4815_4897 = mark.wrapper(model.list=all.cml[4815:4897,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.4898_4980 = mark.wrapper(model.list=all.cml[4898:4980,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
-save.image("1Apr24.6.RData")
+save.image("8June24.6.RData")
 gc()
 
 model.results.4981_5063 = mark.wrapper(model.list=all.cml[4981:5063,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
@@ -633,7 +633,7 @@ model.results.5479_5561 = mark.wrapper(model.list=all.cml[5479:5561,],data=BFS.p
 model.results.5562_5644 = mark.wrapper(model.list=all.cml[5562:5644,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.5645_5727 = mark.wrapper(model.list=all.cml[5645:5727,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.5728_5810 = mark.wrapper(model.list=all.cml[5728:5810,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
-save.image("1Apr24.7.RData")
+save.image("8June24.7.RData")
 gc()
 
 model.results.5811_5893 = mark.wrapper(model.list=all.cml[5811:5893,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
@@ -646,13 +646,13 @@ model.results.6309_6391 = mark.wrapper(model.list=all.cml[6309:6391,],data=BFS.p
 model.results.6392_6474 = mark.wrapper(model.list=all.cml[6392:6474,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.6475_6557 = mark.wrapper(model.list=all.cml[6475:6557,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.6558_6640 = mark.wrapper(model.list=all.cml[6558:6640,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
-save.image("1Apr24.8.RData")
+save.image("8June24.8.RData")
 gc()
 
 model.results.6641_6723 = mark.wrapper(model.list=all.cml[6641:6723,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.6724_6806 = mark.wrapper(model.list=all.cml[6724:6806,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
 model.results.6807_6889 = mark.wrapper(model.list=all.cml[6807:6889,],data=BFS.process,ddl=BFS.ddl,invisible=FALSE,delete=TRUE,adjust=T,chat=chat, threads=14)
-save.image("1Apr24.9.RData")
+save.image("8June24.9.RData")
 gc()
 
 
@@ -813,7 +813,7 @@ saveRDS(model.results.all, file = "model.results.all.rds")
 model.table.all = model.results.all[["model.table"]]
 
 # save model table
-write.csv(model.table.all, "model.table.all.May2024.csv", row.names = TRUE)
+write.csv(model.table.all, "model.table.all.June2024.csv", row.names = TRUE)
 
 ## Remove all parameterizations of Phi and p
 # Filter objects that start with "Phi." or "p."
@@ -907,6 +907,8 @@ Phi.001.avg = ggplot(Phi.001.uni) +
   ) +
   scale_color_manual(values = c("0–4" = "#2FCCF5", "4+" = "#F58E2F")) +
   scale_fill_manual(values = c("0–4" = "#2FCCF5", "4+" = "#F58E2F")) +
+  scale_x_continuous(breaks=seq(2006,2023,4)) + 
+  coord_cartesian(xlim = c(2006, 2023)) +
   guides(fill = "none")  # Remove the fill legend
 
 # save as svg
@@ -944,6 +946,8 @@ p.001.avg = ggplot(p.001.uni) +
   ) +
   scale_color_manual(values = c("0–2" = "#67F5DD", "2+" = "#F58F68")) +
   scale_fill_manual(values = c("0–2" = "#67F5DD", "2+" = "#F58F68")) +
+  scale_x_continuous(breaks=seq(2006,2023,4)) + 
+  coord_cartesian(xlim = c(2006, 2023)) +
   guides(fill = "none")  # Remove the fill legend
 
 
@@ -951,70 +955,8 @@ p.001.avg = ggplot(p.001.uni) +
 ggsave("p.001.avg.svg", plot = p.001.avg, width = 20, height = 15, units = "cm")
 
 
-## [Optional] Step 3: Test specific models #####
 
-# Phi(~season + region)p(~ageclass02 * season + region * season * Year)
-Phi.s_r.p.sa_sry <- mark(data=BFS.process, ddl=BFS.ddl, model.parameters=list(Phi=list(formula=~season + region), p=list(formula=~season*ageclass02 + season*region*Year)), 
-                       invisible=F, delete=T, adjust=T)
-Phi.s_r.p.sa_sry$results$real
-Phi.s_r.p.sa_sry$results$beta
-write.csv(Phi.s_r.p.sa_sry$results$real, "Phi.s_r.p.sa_sry.real.csv")
-write.csv(Phi.s_r.p.sa_sry$results$beta, "Phi.s_r.p.sa_sry.beta.csv")
-
-
-# Phi(~season + ageclass04 + region)p(~ageclass02 * season + region * season * Year)
-Phi.s_a_r.p.sa_sry <- mark(data=BFS.process, ddl=BFS.ddl, model.parameters=list(Phi=list(formula=~season + ageclass04 + region), p=list(formula=~season*ageclass02 + season*region*Year)), 
-                         invisible=F, delete=T, adjust=T)
-Phi.s_a_r.p.sa_sry$results$real
-Phi.s_a_r.p.sa_sry$results$beta
-write.csv(Phi.s_a_r.p.sa_sry$results$real, "Phi.s_a_r.p.sa_sry.real.csv")
-write.csv(Phi.s_a_r.p.sa_sry$results$beta, "Phi.s_a_r.p.sa_sry.beta.csv")
-
-
-
-
-# Phi(~season)p(~ageclass02 * season + region * season * Year)
-Phi.s.p.sa_sry <- mark(data=BFS.process, ddl=BFS.ddl, model.parameters=list(Phi=list(formula=~season), p=list(formula=~season*ageclass02 + season*region*Year)), 
-                       invisible=F, delete=T, adjust=T)
-
-Phi.s.p.sa_sry$results$real
-Phi.s.p.sa_sry$results$beta
-write.csv(Phi.s.p.sa_sry$results$real, "Phi.s.p.sa_sry.real.csv")
-write.csv(Phi.s.p.sa_sry$results$beta, "Phi.s.p.sa_sry.beta.csv")
-
-# # Phi(~season + ageclass04 + region)p(~ageclass02 * season + region * season * Year)
-Phi.s_a_r.p.sa_sry <- mark(data=BFS.process, ddl=BFS.ddl, model.parameters=list(Phi=list(formula=~season+ageclass04+region), p=list(formula=~season*ageclass02 + season*region*Year)), 
-                invisible=F, delete=T, adjust=T)
-
-
-summary(Phi.s_a_r.p.sa_sry, se=T)
-Phi.s_a_r.p.sa_sry$results$real
-write.csv(Phi.s_a_r.p.sa_sry$results$real, "Phi.s_a04_r.p.sa02_sry.real.csv")
-write.csv(Phi.s_a_r.p.sa_sry$results$beta, "Phi.s_a04_r.p.sa02_sry.beta.csv")
-
-collect.models()
-
-
-
-## Export results 
-# beta estimates
-write.csv(stepwise.model.results[["Phi.s_a_r.p.sa_sry"]][["results"]][["beta"]], "Phi.s_a04_r.p.sa02_sry.beta.csv")
-# real estimates
-write.csv(stepwise.model.results[["Phi.s_a_r.p.sa_sry"]][["results"]][["real"]], "Phi.s_a04_r.p.sa02_sry.real.csv")
-
-# get estimates of the best model
-options(max.print=7000)
-
-sink("summary.Phi.WSxrxa04_TWxyxs.p.Wxr_a04.txt")
-summary(
-  stepwise.model.results[["Phi.WSxrxa04_TWxyxs.p.Wxr_a04"]], se=T
-)
-sink()
-
-# get PIMS
-PIMS(stepwise.model.results[["Phi.WSxrxa04_TWxyxs.p.Wxr_a04"]],"Phi", simplified = TRUE)
-
-### [Optional] Delta Method ####
+### Delta Method ####
 betas=summary(stepwise.model.results[["Phi.WSxrxa04_TWxyxs.p.Wxr_a04"]])$beta
 beta.lcl=betas$estimate-1.96*betas$se
 beta.ucl=betas$estimate+1.96*betas$se
@@ -1034,6 +976,68 @@ deltamethod(list(~exp(x1)/(1+exp(x1)),~exp(x2)/(1+exp(x2))),
 
 
 
+## [Optional] Step 3: Test specific models #####
+
+# # Phi(~season + region)p(~ageclass02 * season + region * season * Year)
+# Phi.s_r.p.sa_sry <- mark(data=BFS.process, ddl=BFS.ddl, model.parameters=list(Phi=list(formula=~season + region), p=list(formula=~season*ageclass02 + season*region*Year)), 
+#                        invisible=F, delete=T, adjust=T)
+# Phi.s_r.p.sa_sry$results$real
+# Phi.s_r.p.sa_sry$results$beta
+# write.csv(Phi.s_r.p.sa_sry$results$real, "Phi.s_r.p.sa_sry.real.csv")
+# write.csv(Phi.s_r.p.sa_sry$results$beta, "Phi.s_r.p.sa_sry.beta.csv")
+# 
+# 
+# # Phi(~season + ageclass04 + region)p(~ageclass02 * season + region * season * Year)
+# Phi.s_a_r.p.sa_sry <- mark(data=BFS.process, ddl=BFS.ddl, model.parameters=list(Phi=list(formula=~season + ageclass04 + region), p=list(formula=~season*ageclass02 + season*region*Year)), 
+#                          invisible=F, delete=T, adjust=T)
+# Phi.s_a_r.p.sa_sry$results$real
+# Phi.s_a_r.p.sa_sry$results$beta
+# write.csv(Phi.s_a_r.p.sa_sry$results$real, "Phi.s_a_r.p.sa_sry.real.csv")
+# write.csv(Phi.s_a_r.p.sa_sry$results$beta, "Phi.s_a_r.p.sa_sry.beta.csv")
+# 
+# 
+# 
+# 
+# # Phi(~season)p(~ageclass02 * season + region * season * Year)
+# Phi.s.p.sa_sry <- mark(data=BFS.process, ddl=BFS.ddl, model.parameters=list(Phi=list(formula=~season), p=list(formula=~season*ageclass02 + season*region*Year)), 
+#                        invisible=F, delete=T, adjust=T)
+# 
+# Phi.s.p.sa_sry$results$real
+# Phi.s.p.sa_sry$results$beta
+# write.csv(Phi.s.p.sa_sry$results$real, "Phi.s.p.sa_sry.real.csv")
+# write.csv(Phi.s.p.sa_sry$results$beta, "Phi.s.p.sa_sry.beta.csv")
+# 
+# # # Phi(~season + ageclass04 + region)p(~ageclass02 * season + region * season * Year)
+# Phi.s_a_r.p.sa_sry <- mark(data=BFS.process, ddl=BFS.ddl, model.parameters=list(Phi=list(formula=~season+ageclass04+region), p=list(formula=~season*ageclass02 + season*region*Year)), 
+#                 invisible=F, delete=T, adjust=T)
+# 
+# 
+# summary(Phi.s_a_r.p.sa_sry, se=T)
+# Phi.s_a_r.p.sa_sry$results$real
+# write.csv(Phi.s_a_r.p.sa_sry$results$real, "Phi.s_a04_r.p.sa02_sry.real.csv")
+# write.csv(Phi.s_a_r.p.sa_sry$results$beta, "Phi.s_a04_r.p.sa02_sry.beta.csv")
+# 
+# collect.models()
+# 
+# 
+# 
+# ## Export results 
+# # beta estimates
+# write.csv(stepwise.model.results[["Phi.s_a_r.p.sa_sry"]][["results"]][["beta"]], "Phi.s_a04_r.p.sa02_sry.beta.csv")
+# # real estimates
+# write.csv(stepwise.model.results[["Phi.s_a_r.p.sa_sry"]][["results"]][["real"]], "Phi.s_a04_r.p.sa02_sry.real.csv")
+# 
+# # get estimates of the best model
+# options(max.print=7000)
+# 
+# sink("summary.Phi.WSxrxa04_TWxyxs.p.Wxr_a04.txt")
+# summary(
+#   stepwise.model.results[["Phi.WSxrxa04_TWxyxs.p.Wxr_a04"]], se=T
+# )
+# sink()
+# 
+# # get PIMS
+# PIMS(stepwise.model.results[["Phi.WSxrxa04_TWxyxs.p.Wxr_a04"]],"Phi", simplified = TRUE)
 
 
 
